@@ -1,16 +1,13 @@
 import json,requests
 
 def login(apic_ip,apic_username,apic_password):
-
     credentials = {'aaaUser':
-                {'attributes':
-                    {'name': apic_username, 'pwd': apic_password }
+                    {'attributes':
+                        {'name': apic_username, 'pwd': apic_password }
+                    }
                 }
-    }
-
     base_url = 'https://%s/api/' % apic_ip
     login_url = base_url + 'aaaLogin.json'
-
     json_credentials = json.dumps(credentials)
     post_response = requests.post(login_url, data=json_credentials, verify=False)
     post_response_json = json.loads(post_response.text)
@@ -38,22 +35,57 @@ def postObject(apic_ip, cookies, objectData):
     return response_data.json()
 
 def createTenant(apic_ip, cookies, name):
-    jsonData = '{"fvTenant" : {"attributes" : {"name" : "%s"}}}' % name
-    objectData = json.loads(jsonData)
+    objectData = {"fvTenant" : 
+                    {"attributes" : 
+                        {"name" : name}
+                    }
+                }
     return postObject(apic_ip, cookies, objectData)
 
 def deleteTenant(apic_ip, cookies, name):
-    jsonData = '{"fvTenant" : {"attributes" : {"name" : "%s", "status" : "deleted"}}}' % name
-    objectData = json.loads(jsonData)
+    objectData = {"fvTenant" : 
+                    {"attributes" : 
+                        {"name" : name, "status" : "deleted"}
+                    }
+                }
     return postObject(apic_ip, cookies, objectData)
 
 def createVrf(apic_ip, cookies, name, fvTenant):
-    jsonData = '{"fvCtx": {"attributes": {"dn": "uni/tn-%s/ctx-%s","name": "%s","rn": "ctx-%s","status": "created"}}}' % (fvTenant,name, name, name)
-    objectData = json.loads(jsonData)
+    objectData = {"fvCtx": 
+                    {"attributes": 
+                        {"dn": "uni/tn-" + fvTenant + "/ctx-" + name,
+                        "name": name,
+                        "rn": "ctx-" + name,
+                        "status": "created"}
+                    }
+                }
     return postObject(apic_ip, cookies, objectData)
 
 def createBD(apic_ip, cookies, name, fvCtx, fvTenant):
-    jsonData =  '{"fvBD": {"attributes": {"dn": "uni/tn-%s/BD-%s","name": "%s","status": "created"},"children": [{"fvRsCtx": {"attributes": {"tnFvCtxName": "%s"}}}]}}' % (fvTenant,name,name,fvCtx)
-    print(jsonData)
-    objectData = json.loads(jsonData)
+    objectData =  {"fvBD": 
+                    {"attributes": 
+                        {"dn": "uni/tn-" + fvTenant + "/BD-" + name,
+                        "name": name,
+                        "status": "created"},
+                        "children": [
+                            {"fvRsCtx": 
+                                {"attributes": 
+                                    {"tnFvCtxName": fvCtx}
+                                }
+                            }
+                        ]
+                    }
+                }
+    return postObject(apic_ip, cookies, objectData)
+
+def createL2OUT(apic_ip, cookies, name, vlanid, fvCtx, fvTenant):
+    objectData =  {"l2extOut":
+                    {"attributes":
+                        {"dn":"uni/tn-" + fvTenant + "/l2out-L2-Ext-" + name,
+                        "name":"L2-Ext-" + name,
+                        "rn":"l2out-L2-Ext-" + name,
+                        "status":"created"
+                        }
+                    }
+                }
     return postObject(apic_ip, cookies, objectData)
