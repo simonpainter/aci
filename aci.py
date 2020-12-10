@@ -89,7 +89,7 @@ def createAppProfile(apic_ip, cookies, name, fvTenant):
                 }
     return postObject(apic_ip, cookies, objectData)
 
-def createEPG(apic_ip, cookies, name, fvBD, vlanid, AppProfile, fvTenant):
+def createEPG(apic_ip, cookies, name, fvBD,vlanid, AppProfile, fvTenant, paths, physicalDomain):
     objectData =  {"fvAEPg": 
                     {"attributes": 
                         {"dn": "uni/tn-" + fvTenant + "/ap-" + AppProfile +"/epg-" + name,
@@ -101,9 +101,23 @@ def createEPG(apic_ip, cookies, name, fvBD, vlanid, AppProfile, fvTenant):
                                     {"tnFvBDName": fvBD
                                     }
                                 }
+                            },
+                            {"fvRsDomAtt":
+                               {"attributes":
+                                   {"tDn": physicalDomain
+                                   }
+                                }
                             }
                         ]
                     }
                 }
-    return postObject(apic_ip, cookies, objectData)   
-
+    for path in paths:
+        fvRsPathAtt = {"fvRsPathAtt":{
+                            "attributes":{
+                            "encap":"vlan-" + vlanid,
+                            "tDn": path
+                            }
+                        }
+                    }
+        objectData["fvAEPg"]["children"].append(fvRsPathAtt)
+    return postObject(apic_ip, cookies, objectData)
