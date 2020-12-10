@@ -78,14 +78,32 @@ def createBD(apic_ip, cookies, name, fvCtx, fvTenant):
                 }
     return postObject(apic_ip, cookies, objectData)
 
-def createL2OUT(apic_ip, cookies, name, vlanid, fvCtx, fvTenant):
-    objectData =  {"l2extOut":
-                    {"attributes":
-                        {"dn":"uni/tn-" + fvTenant + "/l2out-L2-Ext-" + name,
-                        "name":"L2-Ext-" + name,
-                        "rn":"l2out-L2-Ext-" + name,
-                        "status":"created"
-                        }
+def createAppProfile(apic_ip, cookies, name, fvTenant):
+    objectData =  {"fvAp": 
+                    {"attributes": 
+                        {"dn": "uni/tn-" + fvTenant + "/ap-" + name,
+                        "name": name,
+                        "status": "created"},
+                        "children": []
                     }
                 }
     return postObject(apic_ip, cookies, objectData)
+
+def createEPG(apic_ip, cookies, name, fvBD, vlanid, AppProfile, fvTenant):
+    objectData =  {"fvAEPg": 
+                    {"attributes": 
+                        {"dn": "uni/tn-" + fvTenant + "/ap-" + AppProfile +"/epg-" + name,
+                        "name": name,
+                        "status": "created"},
+                        "children": [
+                            {"fvRsBd":
+                                {"attributes":
+                                    {"tnFvBDName": fvBD
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+    return postObject(apic_ip, cookies, objectData)   
+
