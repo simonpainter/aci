@@ -94,7 +94,7 @@ def createEPG(apic_ip, cookies, name, fvBD,vlanid, AppProfile, fvTenant, paths, 
                     {"attributes": 
                         {"dn": "uni/tn-" + fvTenant + "/ap-" + AppProfile +"/epg-" + name,
                         "name": name,
-                        "status": "created"},
+                        "status": "created,modified"},
                         "children": [
                             {"fvRsBd":
                                 {"attributes":
