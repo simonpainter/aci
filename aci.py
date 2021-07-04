@@ -61,12 +61,22 @@ def createVrf(apic_ip, cookies, name, fvTenant):
                 }
     return postObject(apic_ip, cookies, objectData)
 
-def createBD(apic_ip, cookies, name, fvCtx, fvTenant):
+def createBD(apic_ip, cookies, name, fvCtx, fvTenant, isStretched):
+    if isStretched:
+        arpFlood = "yes"
+        unkMacUcastAct = "flood"
+    else:
+        arpFlood = "no"
+        unkMacUcastAct = "flood"
     objectData =  {"fvBD": 
                     {"attributes": 
                         {"dn": "uni/tn-" + fvTenant + "/BD-" + name,
                         "name": name,
-                        "status": "created"},
+                        "status": "created",
+                        "arpFlood": arpFlood,
+                        "unkMacUcastAct": unkMacUcastAct
+                        },
+
                         "children": [
                             {"fvRsCtx": 
                                 {"attributes": 
@@ -76,6 +86,7 @@ def createBD(apic_ip, cookies, name, fvCtx, fvTenant):
                         ]
                     }
                 }
+
     return postObject(apic_ip, cookies, objectData)
 
 def createAppProfile(apic_ip, cookies, name, fvTenant):
